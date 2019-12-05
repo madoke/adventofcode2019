@@ -1,0 +1,16 @@
+{
+  "name": "adventofcode2019",
+  "version": "1.0.0",
+  "description": "Solutions for advent of code puzzles 2019",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^24.9.0"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "david.simao@madoke.org",
+  "license": "MIT"
+}
