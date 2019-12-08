@@ -1,10 +1,11 @@
 const LineReader = require("../../utils/linereader");
-
-const p = (x, y) => ({ x, y });
+const { p } = require('../../utils/point');
 
 class Wiretracker {
   constructor() {
     this.wires = {};
+    this.intersections = [];
+    this.circuitBoard = {};
   }
 
   manhattanDistance(p1, p2) {
@@ -24,9 +25,42 @@ class Wiretracker {
     }
   }
 
+  markOnCircuitBoard(point, wire) {
+    const cb = this.circuitBoard;
+    // check if there is a row for x
+    if (!cb.hasOwnProperty(point.x)) {
+      cb[point.x] = {};
+    }
+    // check if there is a col for y
+    if (!cb[point.x].hasOwnProperty(point.y)) {
+      cb[point.x][point.y] = [];
+    }
+    // increment the occurrences of point x,y
+    if (!cb[point.x][point.y].includes(wire)) {
+      cb[point.x][point.y].push(wire);
+    }
+    return cb[point.x][point.y];
+  }
+
+  /**
+   * Tracks a wire in the internal representation
+   * - keeps a map of points where the wire passes
+   * - keeps a list of intersections with other wires
+   * - keeps an ordered list of every point that composes the wire
+   * @param {the wire identifier} wireId
+   * @param {the wire starting point} origin
+   * @param {the wire string} wire
+   */
   track(wireId, origin, wire) {
     let currentPosition = origin;
-    const result = [];
+    // Build an array with the results
+    const result = [origin];
+    // Check if the origin intersects with other wires
+    let wiresInThisPosition = this.markOnCircuitBoard(currentPosition, wire);
+    if (wiresInThisPosition.length > 1) {
+      this.intersections.push(currentPosition);
+    }
+    // Iterate tha wire instructions
     for (const i in wire) {
       const action = wire[i];
       const direction = action.slice(0, 1);
@@ -34,18 +68,22 @@ class Wiretracker {
       for (let i = 0; i < value; i++) {
         currentPosition = this.move(currentPosition, direction);
         result.push(currentPosition);
+        let wiresInThisPosition = this.markOnCircuitBoard(
+          currentPosition,
+          wire
+        );
+        if (wiresInThisPosition.length > 1) {
+          this.intersections.push(currentPosition);
+        }
       }
     }
     this.wires[wireId] = result;
   }
 
   closestIntersection(origin, w1, w2) {
-    const wire1 = this.wires[w1];
-    const wire2 = this.wires[w2];
-    const intersections = wire1.filter(p1 =>
-      wire2.some(p2 => p1.x === p2.x && p1.y === p2.y)
-    );
-    const distances = intersections.map(i => this.manhattanDistance(origin, i));
+    const distances = this.intersections
+      .map(i => this.manhattanDistance(origin, i))
+      .filter(i => i > 0);
     return Math.min(...distances);
   }
 
