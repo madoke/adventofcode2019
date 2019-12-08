@@ -1,4 +1,4 @@
-const { Wiretracker2000 } = require("./index");
+const Wiretracker2000 = require("./index");
 const { p } = require('../../utils/point');
 
 test("successfully counts the number of steps to reach one point", () => {

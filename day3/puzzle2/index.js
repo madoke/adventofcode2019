@@ -1,4 +1,4 @@
-const { Wiretracker } = require("../puzzle1");
+const Wiretracker = require("../puzzle1");
 const LineReader = require("../../utils/linereader");
 const { p } = require("../../utils/point");
 
@@ -49,4 +49,4 @@ class Wiretracker2000 extends Wiretracker {
   }
 }
 
-module.exports = { Wiretracker2000, p };
+module.exports = Wiretracker2000;

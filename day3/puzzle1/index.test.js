@@ -1,4 +1,4 @@
-const { Wiretracker } = require("./index");
+const Wiretracker = require("./index");
 const { p } = require('../../utils/point')
 
 test("successfully gets the manhattan distance between 2 points", () => {

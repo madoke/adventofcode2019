@@ -2,7 +2,6 @@ const FileReader = require("../../utils/filereader");
 const OPSUM = 1;
 const OPMUL = 2;
 const OPHALT = 99;
-const VALID_OPCODES = [OPSUM, OPMUL, OPHALT];
 
 class IntCodeComputer {
   opsum(program, index) {
@@ -56,23 +55,20 @@ class IntCodeComputer {
       .split(",")
       .map(i => parseInt(i));
   }
+
+  run (inputFilePath) {
+    const that = this;
+    return new Promise(function(resolve, _) {
+      const filereader = new FileReader({
+        inputFilePath,
+        onContent: content => {
+          const program = that.parseProgram(content);
+          resolve(that.runProgramWith1202Alarm(program)[0]);
+        }
+      });
+      filereader.read();
+    });
+  };
 }
 
-const runIntcode = inputFilePath => {
-  return new Promise(function(resolve, _) {
-    let computer = new IntCodeComputer();
-    const filereader = new FileReader({
-      inputFilePath,
-      onContent: content => {
-        const program = computer.parseProgram(content);
-        resolve(computer.runProgramWith1202Alarm(program)[0]);
-      }
-    });
-    filereader.read();
-  });
-};
-
-module.exports = {
-  IntCodeComputer,
-  runIntcode
-};
+module.exports = IntCodeComputer;

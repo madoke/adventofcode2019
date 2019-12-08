@@ -1,5 +1,5 @@
 const LineReader = require("../../utils/linereader");
-const { p } = require('../../utils/point');
+const { p } = require("../../utils/point");
 
 class Wiretracker {
   constructor() {
@@ -105,4 +105,4 @@ class Wiretracker {
   }
 }
 
-module.exports = { Wiretracker, p };
+module.exports = Wiretracker;

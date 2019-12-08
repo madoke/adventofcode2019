@@ -1,4 +1,4 @@
-const { IntCodeComputer } = require("../puzzle1");
+const IntCodeComputer = require("../puzzle1");
 const FileReader = require("../../utils/filereader");
 
 class IntCodeComputer2000 extends IntCodeComputer {
@@ -25,23 +25,20 @@ class IntCodeComputer2000 extends IntCodeComputer {
       }
     }
   }
+
+  run(inputFilePath) {
+    const that = this;
+    return new Promise(function(resolve, _) {
+      const filereader = new FileReader({
+        inputFilePath,
+        onContent: content => {
+          const program = that.parseProgram(content);
+          resolve(that.searchVerbAndNoun(program, 19690720));
+        }
+      });
+      filereader.read();
+    });
+  }
 }
 
-const searchInputs = inputFilePath => {
-  return new Promise(function(resolve, _) {
-    let computer = new IntCodeComputer2000();
-    const filereader = new FileReader({
-      inputFilePath,
-      onContent: content => {
-        const program = computer.parseProgram(content);
-        resolve(computer.searchVerbAndNoun(program, 19690720));
-      }
-    });
-    filereader.read();
-  });
-};
-
-module.exports = {
-  IntCodeComputer2000,
-  searchInputs
-};
+module.exports = IntCodeComputer2000;
