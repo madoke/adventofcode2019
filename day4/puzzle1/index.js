@@ -1,14 +1,7 @@
 const FileReader = require("../../utils/filereader");
+const { getDigit, getDigitCount } = require("../../utils/digits");
 
 class Passwordcracker {
-  getDigit(number, n) {
-    return Math.floor((number / Math.pow(10, n - 1)) % 10);
-  }
-
-  getDigitCount(number) {
-    return Math.max(Math.floor(Math.log10(Math.abs(number))), 0) + 1;
-  }
-
   parseInput(input) {
     try {
       const numbers = input.trim().split("-");
@@ -22,7 +15,7 @@ class Passwordcracker {
   }
 
   is6Digit(number) {
-    return this.getDigitCount(number) === 6;
+    return getDigitCount(number) === 6;
   }
 
   isWithinRange(start, stop, number) {
@@ -30,9 +23,9 @@ class Passwordcracker {
   }
 
   has2AdjactentDigits(number) {
-    const digitCount = this.getDigitCount(number);
+    const digitCount = getDigitCount(number);
     for (let i = 1; i < digitCount; i++) {
-      if (this.getDigit(number, i) === this.getDigit(number, i + 1)) {
+      if (getDigit(number, i) === getDigit(number, i + 1)) {
         return true;
       }
     }
@@ -40,9 +33,9 @@ class Passwordcracker {
   }
 
   neverDecreaseLR(number) {
-    const digitCount = this.getDigitCount(number);
+    const digitCount = getDigitCount(number);
     for (let i = 1; i < digitCount; i++) {
-      if (this.getDigit(number, i) < this.getDigit(number, i + 1)) {
+      if (getDigit(number, i) < getDigit(number, i + 1)) {
         return false;
       }
     }
@@ -60,8 +53,8 @@ class Passwordcracker {
 
   countMatchesBetween(start, stop) {
     let counter = 0;
-    for(let i = start; i <= stop; i++) {
-      if(this.matchesAllCriteria(start, stop, i)) {
+    for (let i = start; i <= stop; i++) {
+      if (this.matchesAllCriteria(start, stop, i)) {
         counter++;
       }
     }
@@ -75,7 +68,6 @@ class Passwordcracker {
         inputFilePath,
         onContent: content => {
           const input = that.parseInput(content);
-          console.log(input);
           resolve(that.countMatchesBetween(input.start, input.stop));
         }
       });
