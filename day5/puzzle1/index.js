@@ -12,30 +12,27 @@ class IntCodeComputer3000 extends IntCodeComputer {
   constructor() {
     super();
     this.cursor = 0;
-    this.nParams = {
-      [OPHALT]: 1,
-      [OPMUL]: 4,
-      [OPSUM]: 4,
-      [OPINPUT]: 2,
-      [OPOUTPUT]: 2
-    };
     this.ops = {
       [OPHALT]: () => HALT,
       [OPSUM]: (program, mode1, mode2, mode3) => {
         let left = mode1 ? program[this.cursor + 1] : program[program[this.cursor + 1]];
         let right = mode2 ? program[this.cursor + 2] : program[program[this.cursor + 2]];
         program[program[this.cursor + 3]] = left + right;
+        this.cursor += 4;
       },
       [OPMUL]: (program, mode1, mode2, mode3) => {
         let left = mode1 ? program[this.cursor + 1] : program[program[this.cursor + 1]];
         let right = mode2 ? program[this.cursor + 2] : program[program[this.cursor + 2]];
         program[program[this.cursor + 3]] = left * right;
+        this.cursor += 4;
       },
       [OPINPUT]: (program, mode1, mode2, mode3, input) => {
         program[program[this.cursor + 1]] = input;
+        this.cursor += 2;
       },
       [OPOUTPUT]: (program, mode1, mode2, mode3) => {
         let output = mode1 ? program[this.cursor + 1] : program[program[this.cursor + 1]];
+        this.cursor += 2;
         return output;
       }
     };
@@ -51,14 +48,13 @@ class IntCodeComputer3000 extends IntCodeComputer {
       getDigit(op, 5),
       input
     );
-    this.cursor += this.nParams[opcode];
     return result;
   }
 
-  runProgram(program) {
+  runProgram(program, input) {
     const outputs = [];
     while(true) {
-      const result = this.runInstruction(program, 1);
+      const result = this.runInstruction(program, input);
       if(result === HALT) {
         break;
       }
@@ -76,7 +72,7 @@ class IntCodeComputer3000 extends IntCodeComputer {
         inputFilePath,
         onContent: content => {
           const program = that.parseProgram(content);
-          const result = that.runProgram(program);
+          const result = that.runProgram(program, 1);
           resolve(result[result.length -1]);
         }
       });
