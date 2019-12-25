@@ -8,97 +8,97 @@ beforeEach(() => {
 
 test("jump if true works as expected when first param non zero", () => {
   const program = [5, 1, 2];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(computer.cursor).toEqual(2);
 });
 
 test("jump if true works as expected when first param zero", () => {
   const program = [5, 2, 0];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(computer.cursor).toEqual(3);
 });
 
 test("jump if true works as expected when first param non zero with modes", () => {
   const program = [1105, 1, 2];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(computer.cursor).toEqual(2);
 });
 
 test("jump if true works as expected when first param zero with modes", () => {
   const program = [1105, 0, 0];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(computer.cursor).toEqual(3);
 });
 
 test("jump if false works as expected when first param non zero", () => {
   const program = [6, 3, 2, 1];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(computer.cursor).toEqual(3);
 });
 
 test("jump if false works as expected when first param zero", () => {
   const program = [6, 3, 2, 0];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(computer.cursor).toEqual(2);
 });
 
 test("jump if false works as expected when first param non zero with modes", () => {
   const program = [1106, 1, 2];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(computer.cursor).toEqual(3);
 });
 
 test("jump if false works as expected when first param zero with modes", () => {
   const program = [1106, 0, 0];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(computer.cursor).toEqual(0);
 });
 
 test("less than works as expected when first < second", () => {
   const program = [7, 1, 2, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([7, 1, 2, 1]);
 });
 
 test("less than works as expected when first > second", () => {
   const program = [7, 3, 2, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([7, 3, 2, 0]);
 });
 
 test("less than works as expected when first < second with modes", () => {
   const program = [1107, 1, 2, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([1107, 1, 2, 1]);
 });
 
 test("less than works as expected when first > second with modes", () => {
   const program = [1107, 2, 1, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([1107, 2, 1, 0]);
 });
 
 test("equals works as expected when first === second", () => {
   const program = [8, 1, 1, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([8, 1, 1, 1]);
 });
 
 test("equals works as expected when first !=== second", () => {
   const program = [8, 1, 2, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([8, 1, 2, 0]);
 });
 
 test("equals works as expected when first === second with modes", () => {
   const program = [1108, 1, 1, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([1108, 1, 1, 1]);
 });
 
 test("equals works as expected when first !== second with modes", () => {
   const program = [1108, 2, 1, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([1108, 2, 1, 0]);
 });
 
@@ -117,7 +117,7 @@ test.each`
   ${[3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]}         | ${0}  | ${0}
   ${[3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]}         | ${1}  | ${1}
 `("successfully runs example programs", ({ program, input, output }) => {
-  const result = computer.runProgram(program, input);
+  const result = computer.runProgram(program, [input]);
   expect(result[result.length - 1]).toEqual(output);
 });
 

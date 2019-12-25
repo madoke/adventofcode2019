@@ -11,26 +11,28 @@ const HALT = "HALT";
 class IntCodeComputer3000 extends IntCodeComputer {
   constructor() {
     super();
+    this.inputs = [];
     this.cursor = 0;
     this.ops = {
       [OPHALT]: () => HALT,
-      [OPSUM]: (program, mode1, mode2, mode3) => {
+      [OPSUM]: (program, mode1, mode2) => {
         let left = mode1 ? program[this.cursor + 1] : program[program[this.cursor + 1]];
         let right = mode2 ? program[this.cursor + 2] : program[program[this.cursor + 2]];
         program[program[this.cursor + 3]] = left + right;
         this.cursor += 4;
       },
-      [OPMUL]: (program, mode1, mode2, mode3) => {
+      [OPMUL]: (program, mode1, mode2) => {
         let left = mode1 ? program[this.cursor + 1] : program[program[this.cursor + 1]];
         let right = mode2 ? program[this.cursor + 2] : program[program[this.cursor + 2]];
         program[program[this.cursor + 3]] = left * right;
         this.cursor += 4;
       },
-      [OPINPUT]: (program, mode1, mode2, mode3, input) => {
+      [OPINPUT]: (program) => {
+        const input = this.inputs.shift();
         program[program[this.cursor + 1]] = input;
         this.cursor += 2;
       },
-      [OPOUTPUT]: (program, mode1, mode2, mode3) => {
+      [OPOUTPUT]: (program, mode1) => {
         let output = mode1 ? program[this.cursor + 1] : program[program[this.cursor + 1]];
         this.cursor += 2;
         return output;
@@ -38,23 +40,23 @@ class IntCodeComputer3000 extends IntCodeComputer {
     };
   }
   
-  runInstruction(program, input) {
+  runInstruction(program) {
     const op = program[this.cursor];
     const opcode = op % 100;
     const result = this.ops[opcode](
       program,
       getDigit(op, 3),
       getDigit(op, 4),
-      getDigit(op, 5),
-      input
+      getDigit(op, 5)
     );
     return result;
   }
 
-  runProgram(program, input) {
+  runProgram(program, inputs) {
+    this.inputs = inputs || this.inputs;
     const outputs = [];
     while(true) {
-      const result = this.runInstruction(program, input);
+      const result = this.runInstruction(program);
       if(result === HALT) {
         break;
       }

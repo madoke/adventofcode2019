@@ -8,41 +8,42 @@ beforeEach(() => {
 
 test("sum works as expected", () => {
   const program = [1, 1, 2, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([1, 1, 2, 3]);
 });
 
 test("sum with modes works as expected", () => {
   const program = [1001, 2, 5, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([1001, 2, 5, 10]);
 });
 
 test("mul works as expected", () => {
   const program = [2, 1, 2, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([2, 1, 2, 2]);
 });
 
 test("mul with modes works as expected", () => {
   const program = [1002, 1, 2, 3];
-  computer.runInstruction(program, 0);
+  computer.runInstruction(program);
   expect(program).toEqual([1002, 1, 2, 2]);
 });
 
 test("output works as expected", () => {
   const program = [4, 0];
-  expect(computer.runInstruction(program, 0)).toEqual(4);
+  expect(computer.runInstruction(program)).toEqual(4);
 });
 
 test("output with modes works as expected", () => {
   const program = [4, 1];
-  expect(computer.runInstruction(program, 0)).toEqual(1);
+  expect(computer.runInstruction(program)).toEqual(1);
 });
 
 test("input works as expected", () => {
   const program = [3, 1];
-  computer.runInstruction(program, 7);
+  computer.inputs = [7];
+  computer.runInstruction(program);
   expect(program).toEqual([3, 7]);
 });
 
@@ -60,7 +61,7 @@ test("returns all outputs", () => {
 
 test("code 99 terminates execution", () => {
   const program = [99, 10, 20, 3];
-  expect(computer.runInstruction(program, 0)).toEqual("HALT");
+  expect(computer.runInstruction(program, [0])).toEqual("HALT");
 });
 
 test("correctly reads the file and executes the program", async () => {

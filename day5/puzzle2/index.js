@@ -51,7 +51,7 @@ class IntCodeComputer4000 extends IntCodeComputer3000 {
         inputFilePath,
         onContent: content => {
           const program = that.parseProgram(content);
-          const result = that.runProgram(program, 5);
+          const result = that.runProgram(program, [5]);
           resolve(result[result.length -1]);
         }
       });
