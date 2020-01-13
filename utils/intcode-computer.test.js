@@ -1,9 +1,11 @@
 const IntCodeComputer = require("./intcode-computer");
 
 let computer;
+let onOutput;
 
 beforeEach(() => {
-  computer = new IntCodeComputer();
+  onOutput = jest.fn();
+  computer = new IntCodeComputer(onOutput);
 });
 
 /**
@@ -11,7 +13,7 @@ beforeEach(() => {
  */
 assertProgramResult = (program, expected) => {
   computer.loadProgram(program);
-  computer.runInstruction();
+  computer.run();
   expect(computer.program).toEqual(expected);
 };
 
@@ -20,16 +22,25 @@ assertProgramResult = (program, expected) => {
  */
 assertCursorMovesTo = (program, expected) => {
   computer.loadProgram(program);
-  computer.runInstruction();
+  computer.run();
   expect(computer.cursor).toEqual(expected);
 };
+
+describe("input parsing", () => {
+  test("can parse input correctly", () => {
+    const program = " 1,2,3,4 ";
+    const result = [1, 2, 3, 4];
+    computer.loadProgram(program);
+    expect(computer.program).toEqual(result);
+  });
+});
 
 describe("instruction processing", () => {
   test.each`
     input           | output
     ${"1,1,2,3"}    | ${[1, 1, 2, 3]}
     ${"1001,2,5,3"} | ${[1001, 2, 5, 10]}
-  `("sum adds two parameters", ({ input, output }) => {
+  `("sum adds two parameters", ({input, output}) => {
     assertProgramResult(input, output);
   });
 
@@ -37,32 +48,32 @@ describe("instruction processing", () => {
     input           | output
     ${"2,1,2,3"}    | ${[2, 1, 2, 2]}
     ${"1002,1,2,3"} | ${[1002, 1, 2, 2]}
-  `("mul multiplies two parameters", ({ input, output }) => {
+  `("mul multiplies two parameters", ({input, output}) => {
     assertProgramResult(input, output);
   });
 
   test.each`
-    input         | output
-    ${"5,1,2"}    | ${2}
-    ${"5,2,0"}    | ${3}
-    ${"1105,1,2"} | ${2}
-    ${"1105,0,0"} | ${3}
+    input                 | output
+    ${"5,4,5,99,1,88"}    | ${88}
+    ${"5,4,5,99,0,88"}    | ${3}
+    ${"1105,1,88"}        | ${88}
+    ${"1105,0,88"}        | ${3}
   `(
     "jump if true moves the cursor to the designated position if value is non zero",
-    ({ input, output }) => {
+    ({input, output}) => {
       assertCursorMovesTo(input, output);
     }
   );
 
   test.each`
-    input         | output
-    ${"6,3,2,1"}  | ${3}
-    ${"6,3,2,0"}  | ${2}
-    ${"1106,1,2"} | ${3}
-    ${"1106,0,0"} | ${0}
+    input                 | output
+    ${"6,4,5,99,1,88"}    | ${3}
+    ${"6,4,5,99,0,88"}    | ${88}
+    ${"1106,1,88"}        | ${3}
+    ${"1106,0,88"}        | ${88}
   `(
     "jump if false moves the cursor to the designated position if value is zero",
-    ({ input, output }) => {
+    ({input, output}) => {
       assertCursorMovesTo(input, output);
     }
   );
@@ -75,7 +86,7 @@ describe("instruction processing", () => {
     ${"1107,2,1,3"} | ${[1107, 2, 1, 0]}
   `(
     "less than stores 1 in param 3 if param 1 < param 2, otherwise 0",
-    ({ input, output }) => {
+    ({input, output}) => {
       assertProgramResult(input, output);
     }
   );
@@ -87,9 +98,32 @@ describe("instruction processing", () => {
     ${"1108,1,1,3"} | ${[1108, 1, 1, 1]}
     ${"1108,2,1,3"} | ${[1108, 2, 1, 0]}
   `(
-    "equals than stores 1 in param 3 if param 1 == param 2, otherwise 0",
-    ({ input, output }) => {
+    "equals than stores 1 in param 3 if param 1 = param 2, otherwise 0",
+    ({input, output}) => {
       assertProgramResult(input, output);
     }
   );
+
+  test.each`
+    program             | input   | expected
+    ${"3,3,99,4,0"}     | ${88}   | ${[3, 3, 99, 4, 88]}
+    ${"1103,3,99,0"}    | ${88}   | ${[1103, 3, 99, 88]}
+  `("input collects external input", ({program, input, expected}) => {
+    computer.loadProgram(program);
+    computer.run();
+    computer.input(input);
+    expect(computer.program).toEqual(expected);
+  });
+
+  test.each`
+    program           | expected
+    ${"4,3,99,88"}    | ${88}
+    ${"1104,88,99"}   | ${88}
+  `("output outputs values", ({program, expected}) => {
+    computer.loadProgram(program);
+    computer.run();
+    expect(onOutput).toBeCalledTimes(1);
+    expect(onOutput).toBeCalledWith(expected);
+  });
+
 });

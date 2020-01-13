@@ -1,4 +1,4 @@
-const { getDigit } = require("./digits");
+const {getDigit} = require("./digits");
 const OPSUM = 1;
 const OPMUL = 2;
 const OPINPUT = 3;
@@ -10,11 +10,16 @@ const OPEQUALS = 8;
 const OPHALT = 99;
 const HALT = 8887;
 const INPUT = 8888;
+const RUNNING = 1;
+const WAITFORINPUT = 2;
+const STOPPED = 3
 
 class IntCodeComputer {
   constructor(onOutput) {
-    this.onOutput = onOutput || (() => {});
+    this.onOutput = onOutput || (() => {
+    });
     this.cursor = 0;
+    this.state = STOPPED;
     this.ops = {
       [OPHALT]: () => HALT,
       [OPSUM]: (program, mode1, mode2) => {
@@ -83,7 +88,10 @@ class IntCodeComputer {
         program[program[this.cursor + 3]] = left === right ? 1 : 0;
         this.cursor += 4;
       },
-      [OPINPUT]: () => INPUT,
+      [OPINPUT]: (program, mode1) => {
+        this.inputMode = mode1;
+        return INPUT
+      },
       [OPOUTPUT]: (program, mode1) => {
         let output = mode1
           ? program[this.cursor + 1]
@@ -104,7 +112,9 @@ class IntCodeComputer {
   runInstruction() {
     const op = this.program[this.cursor];
     const opcode = op % 100;
-    this.currentInstruction = opcode;
+    if (!this.ops.hasOwnProperty(opcode)) {
+      return HALT;
+    }
     const result = this.ops[opcode](
       this.program,
       getDigit(op, 3),
@@ -115,24 +125,37 @@ class IntCodeComputer {
   }
 
   run() {
-    while (true) {
-      const result = this.runInstruction(program);
+    this.state = RUNNING;
+    while (this.cursor <= this.program.length) {
+      const result = this.runInstruction();
       if (result !== undefined && result !== null) {
-        if (result === HALT || result === INPUT) {
-          break;
-        } else {
-          this.onOutput(result);
+        switch (result) {
+          case HALT:
+            this.state = STOPPED;
+            return;
+          case INPUT:
+            this.state = WAITFORINPUT;
+            return;
+          default:
+            this.onOutput(result);
         }
       }
     }
+    this.state = STOPPED;
   }
 
   input(input) {
-    if (this.currentInstruction === OPINPUT) {
-      program[program[this.cursor + 1]] = input;
+    if (this.state === WAITFORINPUT) {
+      let position;
+      if (this.inputMode) {
+        position = this.program[this.cursor + 1]
+      } else {
+        position = this.program[this.program[this.cursor + 1]];
+      }
+      this.program[position] = input;
       this.cursor += 2;
-      this.run();
     }
+    this.run();
   }
 }
 

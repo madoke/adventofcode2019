@@ -1,59 +1,23 @@
 const FileReader = require("../../utils/filereader");
-const OPSUM = 1;
-const OPMUL = 2;
-const OPHALT = 99;
+const IntCodeComputer = require("../../utils/intcode-computer");
 
-class IntCodeComputer {
-  opsum(program, index) {
-    program[program[index + 3]] =
-      program[program[index + 1]] + program[program[index + 2]];
-    return program;
-  }
-
-  opmul(program, index) {
-    program[program[index + 3]] =
-      program[program[index + 1]] * program[program[index + 2]];
-    return program;
-  }
-
-  runInstruction(program, index) {
-    if (!program || index < 0 || index >= program.length) {
-      throw new Error("Invalid program/index !");
-    }
-    switch (program[index]) {
-      case OPHALT:
-        return false;
-      case OPMUL:
-        return this.opmul(program, index);
-      case OPSUM:
-        return this.opsum(program, index);
-      default:
-        throw new Error("Invalid opcode !");
-    }
-  }
-
-  runProgram(program) {
-    let stack = program;
-    for (let index = 0; index < program.length; index += 4) {
-      const result = this.runInstruction(stack, index);
-      if (!result) break;
-      stack = result;
-    }
-    return stack;
+class ProgramRunner {
+  constructor() {
+    this.intCodeComputer = new IntCodeComputer();
   }
 
   runProgramWith1202Alarm(program) {
-    const modifiedProgram = program;
-    modifiedProgram[1] = 12;
-    modifiedProgram[2] = 2;
-    return this.runProgram(modifiedProgram);
+    this.intCodeComputer.loadProgram(program);
+    this.intCodeComputer.program[1] = 12;
+    this.intCodeComputer.program[2] = 2;
+    this.intCodeComputer.run();
+    return this.intCodeComputer.program;
   }
 
-  parseProgram(raw) {
-    return raw
-      .trim()
-      .split(",")
-      .map(i => parseInt(i));
+  runProgram(program) {
+    this.intCodeComputer.loadProgram(program);
+    this.intCodeComputer.run();
+    return this.intCodeComputer.program;
   }
 
   run (inputFilePath) {
@@ -62,8 +26,7 @@ class IntCodeComputer {
       const filereader = new FileReader({
         inputFilePath,
         onContent: content => {
-          const program = that.parseProgram(content);
-          resolve(that.runProgramWith1202Alarm(program)[0]);
+          resolve(that.runProgramWith1202Alarm(content)[0]);
         }
       });
       filereader.read();
@@ -71,4 +34,4 @@ class IntCodeComputer {
   };
 }
 
-module.exports = IntCodeComputer;
+module.exports = ProgramRunner;
